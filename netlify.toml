@@ -12,6 +12,11 @@
   # Node.js version
   NODE_VERSION = "18"
 
+# Environment variables (optional)
+# Add these in Netlify dashboard under Site settings > Environment variables
+# SUPABASE_URL = "https://fzqtdybnvctvgkqqyhkl.supabase.co"
+# SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
 # Redirect rules for SPA
 [[redirects]]
   from = "/*"

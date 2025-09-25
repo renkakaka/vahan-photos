@@ -76,19 +76,18 @@ After deployment, update your Supabase project settings:
 
 ### 2. Environment Variables (Optional)
 
-If you want to use environment variables instead of hardcoded values:
+**Current setup works without Environment Variables**, but you can add them for extra security:
 
 1. **In Netlify Dashboard**
    - Go to Site settings → Environment variables
    - Add:
-     - `VITE_SUPABASE_URL`: Your Supabase URL
-     - `VITE_SUPABASE_ANON_KEY`: Your Supabase anon key
+     - `SUPABASE_URL`: `https://fzqtdybnvctvgkqqyhkl.supabase.co`
+     - `SUPABASE_KEY`: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
-2. **Update script-supabase.js**
-   ```javascript
-   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'YOUR_FALLBACK_URL';
-   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_FALLBACK_KEY';
-   ```
+2. **Code already supports both methods:**
+   - Uses Environment Variables if available
+   - Falls back to hardcoded values if not set
+   - **No changes needed** - works out of the box!
 
 ### 3. Custom Domain (Optional)
 
