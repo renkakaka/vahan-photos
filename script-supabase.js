@@ -147,8 +147,8 @@ async function generatePortfolioItems() {
         
         portfolioGrid.appendChild(portfolioItem);
         
-        // Add to observer if it exists
-        if (window.portfolioObserver) {
+        // Add to observer if it exists and item hasn't been animated yet
+        if (window.portfolioObserver && !portfolioItem.classList.contains('animate-fade-in-up')) {
             window.portfolioObserver.observe(portfolioItem);
         }
     });
@@ -237,9 +237,11 @@ function initPortfolioAnimations() {
     
     window.portfolioObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && !entry.target.classList.contains('animate-fade-in-up')) {
                 entry.target.classList.add('animate-fade-in-up');
                 entry.target.style.animationDelay = `${Array.from(entry.target.parentNode.children).indexOf(entry.target) * 0.1}s`;
+                // Unobserve after animation is added to prevent re-triggering
+                window.portfolioObserver.unobserve(entry.target);
             }
         });
     }, {
@@ -249,7 +251,10 @@ function initPortfolioAnimations() {
     
     const portfolioItems = document.querySelectorAll('.portfolio-item');
     portfolioItems.forEach(item => {
-        window.portfolioObserver.observe(item);
+        // Only observe items that haven't been animated yet
+        if (!item.classList.contains('animate-fade-in-up')) {
+            window.portfolioObserver.observe(item);
+        }
     });
 }
 
@@ -878,8 +883,11 @@ async function init() {
             window.responsiveInitialized = true;
         }
         
-        // Always initialize portfolio animations for new items
-        initPortfolioAnimations();
+        // Initialize portfolio animations only once
+        if (!window.portfolioAnimationsInitialized) {
+            initPortfolioAnimations();
+            window.portfolioAnimationsInitialized = true;
+        }
         
         // Add loaded class for CSS animations
         document.body.classList.add('loaded');
