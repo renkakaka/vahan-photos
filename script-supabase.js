@@ -455,13 +455,23 @@ function initNavigation() {
     const navMenu = document.querySelector('.nav-menu');
     const navLinks = document.querySelectorAll('.nav-link');
     
+    console.log('Initializing navigation:', { navToggle, navMenu, navLinks: navLinks.length });
+    
     // Mobile menu toggle
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            navMenu.classList.toggle('active');
-            navToggle.classList.toggle('active');
+            console.log('Toggle clicked');
+            
+            const isActive = navMenu.classList.contains('active');
+            if (isActive) {
+                navMenu.classList.remove('active');
+                navToggle.classList.remove('active');
+            } else {
+                navMenu.classList.add('active');
+                navToggle.classList.add('active');
+            }
         });
         
         // Close menu when clicking outside
@@ -471,6 +481,8 @@ function initNavigation() {
                 navToggle.classList.remove('active');
             }
         });
+    } else {
+        console.warn('Navigation elements not found:', { navToggle, navMenu });
     }
     
     // Smooth scroll for navigation links
@@ -481,7 +493,7 @@ function initNavigation() {
             smoothScrollTo(target);
             
             // Close mobile menu if open
-            if (navMenu.classList.contains('active')) {
+            if (navMenu && navMenu.classList.contains('active')) {
                 navMenu.classList.remove('active');
                 navToggle.classList.remove('active');
             }
@@ -491,10 +503,12 @@ function initNavigation() {
     // Navbar scroll effect
     window.addEventListener('scroll', debounce(() => {
         const nav = document.querySelector('.nav');
-        if (window.scrollY > 100) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
+        if (nav) {
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
         }
     }, 10));
 }
