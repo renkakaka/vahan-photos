@@ -146,6 +146,11 @@ async function generatePortfolioItems() {
         });
         
         portfolioGrid.appendChild(portfolioItem);
+        
+        // Add to observer if it exists
+        if (window.portfolioObserver) {
+            window.portfolioObserver.observe(portfolioItem);
+        }
     });
 }
 
@@ -227,7 +232,10 @@ function handleImageError(img) {
  * Initialize portfolio animations
  */
 function initPortfolioAnimations() {
-    const observer = new IntersectionObserver((entries) => {
+    // Only initialize once
+    if (window.portfolioObserver) return;
+    
+    window.portfolioObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('animate-fade-in-up');
@@ -241,7 +249,7 @@ function initPortfolioAnimations() {
     
     const portfolioItems = document.querySelectorAll('.portfolio-item');
     portfolioItems.forEach(item => {
-        observer.observe(item);
+        window.portfolioObserver.observe(item);
     });
 }
 
@@ -444,9 +452,19 @@ function initNavigation() {
     
     // Mobile menu toggle
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', () => {
+        navToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             navMenu.classList.toggle('active');
             navToggle.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
+                navMenu.classList.remove('active');
+                navToggle.classList.remove('active');
+            }
         });
     }
     
@@ -828,15 +846,40 @@ async function init() {
         // Generate portfolio items (async)
         await generatePortfolioItems();
         
-        // Initialize other functionality
-        initNavigation();
+        // Initialize other functionality (only once)
+        if (!window.navigationInitialized) {
+            initNavigation();
+            window.navigationInitialized = true;
+        }
+        
+        if (!window.lightboxInitialized) {
+            initLightbox();
+            window.lightboxInitialized = true;
+        }
+        
+        if (!window.scrollInitialized) {
+            initScrollAnimations();
+            initParallax();
+            window.scrollInitialized = true;
+        }
+        
+        if (!window.formInitialized) {
+            initContactForm();
+            window.formInitialized = true;
+        }
+        
+        if (!window.lazyInitialized) {
+            initLazyLoading();
+            window.lazyInitialized = true;
+        }
+        
+        if (!window.responsiveInitialized) {
+            handleResponsiveChanges();
+            window.responsiveInitialized = true;
+        }
+        
+        // Always initialize portfolio animations for new items
         initPortfolioAnimations();
-        initLightbox();
-        initScrollAnimations();
-        initParallax();
-        initContactForm();
-        initLazyLoading();
-        handleResponsiveChanges();
         
         // Add loaded class for CSS animations
         document.body.classList.add('loaded');
