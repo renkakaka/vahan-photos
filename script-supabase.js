@@ -110,7 +110,7 @@ async function generatePortfolioItems() {
         if (item.isCarousel && item.carouselImages && item.carouselImages.length > 0) {
             portfolioItem.innerHTML = `
                 <div class="carousel-container">
-                    <img src="${item.image}" alt="${item.title}" loading="lazy" decoding="async" onerror="handleImageError(this)">
+                    <img src="${item.image}" alt="${item.title}" loading="eager" decoding="async" onerror="handleImageError(this)">
                     <div class="carousel-indicator">
                         <span class="carousel-count">${item.carouselImages.length}</span>
                         <span class="carousel-icon">📷</span>
@@ -123,7 +123,7 @@ async function generatePortfolioItems() {
             `;
         } else {
             portfolioItem.innerHTML = `
-                <img src="${item.image}" alt="${item.title}" loading="lazy" decoding="async" onerror="handleImageError(this)">
+                <img src="${item.image}" alt="${item.title}" loading="eager" decoding="async" onerror="handleImageError(this)">
                 <div class="portfolio-overlay">
                     <h3 class="portfolio-title">${item.title}</h3>
                     <span class="portfolio-category">${item.category}</span>
@@ -136,14 +136,30 @@ async function generatePortfolioItems() {
             openLightbox(item, index);
         });
         
-        // Add hover effects
-        portfolioItem.addEventListener('mouseenter', () => {
-            portfolioItem.style.transform = 'translateY(-8px) scale(1.02)';
-        });
+        // Add hover effects (only on non-touch devices)
+        if (!('ontouchstart' in window)) {
+            portfolioItem.addEventListener('mouseenter', () => {
+                portfolioItem.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            portfolioItem.addEventListener('mouseleave', () => {
+                portfolioItem.style.transform = 'translateY(0) scale(1)';
+            });
+        }
         
-        portfolioItem.addEventListener('mouseleave', () => {
-            portfolioItem.style.transform = 'translateY(0) scale(1)';
-        });
+        // Prevent image reloading on iOS
+        const img = portfolioItem.querySelector('img');
+        if (img) {
+            img.addEventListener('load', () => {
+                img.classList.add('loaded');
+            });
+            
+            // Prevent re-loading
+            img.addEventListener('error', (e) => {
+                e.preventDefault();
+                handleImageError(img);
+            });
+        }
         
         portfolioGrid.appendChild(portfolioItem);
         
@@ -305,7 +321,7 @@ function openLightbox(item, index) {
             <div class="carousel-track">
                 ${item.carouselImages.map((img, idx) => `
                     <div class="carousel-slide ${idx === 0 ? 'active' : ''}">
-                        <img src="${img}" alt="${item.title} - Image ${idx + 1}" loading="lazy">
+                        <img src="${img}" alt="${item.title} - Image ${idx + 1}" loading="eager">
                     </div>
                 `).join('')}
             </div>
@@ -623,25 +639,12 @@ function initContactForm() {
 // ========================================
 
 /**
- * Initialize lazy loading for images
+ * Initialize lazy loading for images (disabled for iOS compatibility)
  */
 function initLazyLoading() {
-    const images = document.querySelectorAll('img[loading="lazy"]');
-    
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src || img.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-        
-        images.forEach(img => imageObserver.observe(img));
-    }
+    // Disabled lazy loading for iOS compatibility
+    // All images are loaded with loading="eager"
+    console.log('Lazy loading disabled for iOS compatibility');
 }
 
 // ========================================

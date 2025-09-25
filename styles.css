@@ -1223,6 +1223,29 @@ body.ios-scrolling .animate-fade-in-up {
     transform: translateY(0) !important;
 }
 
+/* Prevent image reloading on iOS */
+.portfolio-item img {
+    will-change: auto;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.portfolio-item img.loaded {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* iOS specific image handling */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+    .portfolio-item img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        -webkit-backface-visibility: hidden;
+        -webkit-transform: translateZ(0);
+    }
+}
+
 /* ========================================
    UTILITY CLASSES
 ======================================== */
