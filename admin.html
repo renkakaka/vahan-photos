@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAHAN PHOTOS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000; 
+            color: #fff; 
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 40px 20px;
+        }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 60px; 
+            border-bottom: 1px solid #333;
+            padding-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 60px;
+            align-items: start;
+        }
+        
+        .upload-section {
+            background: #111;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #222;
+        }
+        
+        .form-group { 
+            margin-bottom: 30px; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea { 
+            width: 100%; 
+            padding: 16px 20px; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+            background: #000; 
+            color: #fff; 
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #fff;
+            background: #111;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #fff;
+        }
+        
+        .file-upload {
+            position: relative;
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload:hover {
+            border-color: #fff;
+            background: #111;
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-upload-text {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #555;
+            background: #1a1a1a;
+        }
+        
+        .carousel-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .carousel-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+        
+        .photo-edit {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .photo-edit input,
+        .photo-edit select,
+        .photo-edit textarea {
+            padding: 8px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .photo-edit textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .photo-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-edit {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .carousel-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        .btn { 
+            background: #fff; 
+            color: #000; 
+            padding: 16px 32px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .btn:hover { 
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger { 
+            background: #ff4444; 
+            color: #fff;
+        }
+        
+        .btn-danger:hover { 
+            background: #ff3333;
+        }
+        
+        .gallery-section {
+            background: #111;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #222;
+        }
+        
+        .gallery-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        
+        .photo-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 20px; 
+        }
+        
+        .photo-item { 
+            background: #000; 
+            border-radius: 8px; 
+            overflow: hidden;
+            border: 1px solid #222;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-item:hover {
+            transform: translateY(-4px);
+            border-color: #fff;
+        }
+        
+        .photo-item img { 
+            width: 100%; 
+            height: 180px; 
+            object-fit: cover; 
+        }
+        
+        .photo-info {
+            padding: 16px;
+        }
+        
+        .photo-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+        
+        .photo-category {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .photo-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            width: auto;
+            margin: 0;
+        }
+        
+        .status { 
+            padding: 16px 20px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            font-weight: 500;
+        }
+        
+        .status.success { background: #1a5a1a; color: #4ade80; }
+        .status.error { background: #5a1a1a; color: #f87171; }
+        .status.info { background: #1a3a5a; color: #60a5fa; }
+        
+        .login-section {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #111;
+            padding: 60px 40px;
+            border-radius: 12px;
+            border: 1px solid #222;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .login-buttons {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .login-buttons .btn {
+            margin: 0;
+            flex: 1;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .container {
+                padding: 20px 10px;
+            }
+            
+            .upload-section,
+            .gallery-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <div class="header">
+                <div class="logo">VAHAN</div>
+                <div class="subtitle">Photography</div>
+            </div>
+            
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <div class="login-buttons">
+                <button class="btn" onclick="login()">Login</button>
+                <button class="btn" onclick="signup()">Sign Up</button>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" style="display: none;">
+            <div class="header">
+                <div class="logo">VAHAN</div>
+                <div class="subtitle">Photography</div>
+            </div>
+
+            <div class="main-content">
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <div class="form-group">
+                        <input type="text" id="photoTitle" placeholder="Title (optional)">
+                    </div>
+                    <div class="form-group">
+                        <select id="photoCategory">
+                            <option value="Wedding">Wedding</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="photoDescription" placeholder="Description (optional)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <select id="photoSize">
+                            <option value="large">Large</option>
+                            <option value="medium">Medium</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isCarousel" onchange="toggleCarousel()">
+                        <label for="isCarousel">Carousel</label>
+                    </div>
+                    <div id="carouselSection" style="display: none;">
+                        <div class="form-group">
+                            <input type="file" id="carouselFiles" multiple accept="image/*" style="display: none;">
+                            <div class="file-upload-area" onclick="document.getElementById('carouselFiles').click()">
+                                <div class="file-upload-text">Select multiple images for carousel</div>
+                            </div>
+                            <div id="carouselPreview" class="carousel-preview"></div>
+                        </div>
+                    </div>
+                    <div class="file-upload">
+                        <input type="file" id="photoFile" accept="image/*">
+                        <div class="file-upload-text">Drop image here or click to browse</div>
+                    </div>
+                    <button class="btn" onclick="uploadPhoto()">Upload</button>
+                    <button class="btn btn-danger" onclick="logout()">Logout</button>
+                </div>
+
+                <!-- Gallery Section -->
+                <div class="gallery-section">
+                    <div class="gallery-title">Gallery</div>
+                    <div id="photosGrid" class="photo-grid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📷</div>
+                            <div>No photos yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const supabaseUrl = 'https://fzqtdybnvctvgkqqyhkl.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cXRkeWJudmN0dmdrcXF5aGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4MDE2MjMsImV4cCI6MjA3NDM3NzYyM30.F5JH4i8w8I8TeHrXgfqLr0swYCgjHA6VvL53n6PrQR0';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Check if user is logged in
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                showAdminPanel();
+                loadPhotos();
+            }
+        }
+
+        // Login function
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                showStatus('Login error: ' + error.message, 'error');
+            } else {
+                showStatus('Login successful!', 'success');
+                showAdminPanel();
+                loadPhotos();
+            }
+        }
+
+        // Signup function
+        async function signup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                showStatus('Signup error: ' + error.message, 'error');
+            } else {
+                showStatus('Please check your email to confirm your account!', 'info');
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            await supabase.auth.signOut();
+            showLoginSection();
+            showStatus('Logged out successfully!', 'info');
+        }
+
+        // Show login section
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('photosGrid').style.display = 'none';
+        }
+
+        // Show admin panel
+        function showAdminPanel() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('photosGrid').style.display = 'block';
+        }
+
+        // Toggle carousel section
+        function toggleCarousel() {
+            const isCarousel = document.getElementById('isCarousel').checked;
+            document.getElementById('carouselSection').style.display = isCarousel ? 'block' : 'none';
+            
+            // Clear carousel files when toggling off
+            if (!isCarousel) {
+                document.getElementById('carouselFiles').value = '';
+                document.getElementById('carouselPreview').innerHTML = '';
+            }
+        }
+        
+        // Handle carousel file selection
+        document.getElementById('carouselFiles').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const preview = document.getElementById('carouselPreview');
+            preview.innerHTML = '';
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.title = file.name;
+                    preview.appendChild(img);
+                }
+            });
+        });
+
+        // Upload photo function
+        async function uploadPhoto() {
+            const title = document.getElementById('photoTitle').value;
+            const category = document.getElementById('photoCategory').value;
+            const description = document.getElementById('photoDescription').value;
+            const size = document.getElementById('photoSize').value;
+            const isCarousel = document.getElementById('isCarousel').checked;
+            const carouselFiles = document.getElementById('carouselFiles').files;
+            const file = document.getElementById('photoFile').files[0];
+            
+            if (!category || !file) {
+                showStatus('Please select category and upload a file!', 'error');
+                return;
+            }
+            
+            // For carousel, check if carousel files are selected
+            if (isCarousel && carouselFiles.length === 0) {
+                showStatus('Please select multiple images for carousel!', 'error');
+                return;
+            }
+            
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showStatus('File too large! Maximum size is 10MB', 'error');
+                return;
+            }
+            
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                showStatus('Please select an image file!', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Uploading photo...', 'info');
+                
+                // Create unique filename
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                
+                console.log('Uploading file:', fileName, 'Size:', file.size, 'Type:', file.type);
+                
+                // Upload file to Storage
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('photos')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    showStatus('Upload error: ' + uploadError.message, 'error');
+                    return;
+                }
+                
+                console.log('Upload successful:', uploadData);
+                
+                // Get public URL
+                const { data: urlData } = supabase.storage
+                    .from('photos')
+                    .getPublicUrl(fileName);
+                
+                console.log('Public URL:', urlData.publicUrl);
+                
+                // Prepare photo data
+                const photoData = {
+                    title: title || `Photo ${Date.now()}`, // Auto-generate title if empty
+                    category: category,
+                    description: description || '', // Empty description if not provided
+                    image_url: urlData.publicUrl,
+                    size: size,
+                    is_carousel: isCarousel
+                };
+                
+                // Add carousel images if it's a carousel
+                if (isCarousel && carouselFiles.length > 0) {
+                    const carouselUrls = [];
+                    
+                    // Upload each carousel file
+                    for (let i = 0; i < carouselFiles.length; i++) {
+                        const carouselFile = carouselFiles[i];
+                        const carouselFileName = `carousel_${Date.now()}_${i}_${carouselFile.name}`;
+                        
+                        // Upload to storage
+                        const { data: carouselData, error: carouselError } = await supabase.storage
+                            .from('photos')
+                            .upload(carouselFileName, carouselFile);
+                        
+                        if (carouselError) {
+                            console.error('Carousel upload error:', carouselError);
+                            showStatus('Error uploading carousel image: ' + carouselError.message, 'error');
+                            return;
+                        }
+                        
+                        // Get public URL
+                        const { data: carouselUrlData } = supabase.storage
+                            .from('photos')
+                            .getPublicUrl(carouselFileName);
+                        
+                        carouselUrls.push(carouselUrlData.publicUrl);
+                    }
+                    
+                    photoData.carousel_images = carouselUrls;
+                }
+                
+                console.log('Inserting photo data:', photoData);
+                
+                // Insert into database
+                const { data, error } = await supabase
+                    .from('photos')
+                    .insert([photoData]);
+                
+                if (error) {
+                    console.error('Database error:', error);
+                    showStatus('Database error: ' + error.message, 'error');
+                } else {
+                    console.log('Photo inserted successfully:', data);
+                    showStatus('Photo uploaded successfully!', 'success');
+                    loadPhotos();
+                    // Clear form
+                    document.getElementById('photoTitle').value = '';
+                    document.getElementById('photoDescription').value = '';
+                    document.getElementById('photoFile').value = '';
+                    document.getElementById('carouselFiles').value = '';
+                    document.getElementById('carouselPreview').innerHTML = '';
+                    document.getElementById('isCarousel').checked = false;
+                    toggleCarousel();
+                    // Reset file upload text
+                    document.querySelector('.file-upload-text').textContent = 'Drop image here or click to browse';
+                    document.querySelector('.file-upload-text').style.color = '#666';
+                }
+                
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Load photos function
+        async function loadPhotos() {
+            const { data: photos, error } = await supabase
+                .from('photos')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                showStatus('Error loading photos: ' + error.message, 'error');
+                return;
+            }
+            
+            const photosGrid = document.getElementById('photosGrid');
+            
+            if (photos.length === 0) {
+                photosGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📷</div>
+                        <div>No photos yet</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            photosGrid.innerHTML = '';
+            
+            photos.forEach(photo => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                photoItem.innerHTML = `
+                    <img src="${photo.image_url}" alt="${photo.title}">
+                    <div class="photo-info">
+                        <div class="photo-edit" id="edit-${photo.id}" style="display: none;">
+                            <input type="text" id="edit-title-${photo.id}" value="${photo.title}" placeholder="Title">
+                            <select id="edit-category-${photo.id}">
+                                <option value="Wedding" ${photo.category === 'Wedding' ? 'selected' : ''}>Wedding</option>
+                            </select>
+                            <select id="edit-size-${photo.id}">
+                                <option value="large" ${photo.size === 'large' ? 'selected' : ''}>Large</option>
+                                <option value="medium" ${photo.size === 'medium' ? 'selected' : ''}>Medium</option>
+                            </select>
+                            <textarea id="edit-description-${photo.id}" placeholder="Description">${photo.description || ''}</textarea>
+                        </div>
+                        <div class="photo-display" id="display-${photo.id}">
+                            <div class="photo-title">${photo.title}</div>
+                            <div class="photo-category">${photo.category}</div>
+                            <div class="photo-size">${photo.size}</div>
+                            ${photo.is_carousel ? '<span class="carousel-badge">Carousel</span>' : ''}
+                        </div>
+                        <div class="photo-actions">
+                            <button class="btn btn-small btn-edit" onclick="toggleEdit(${photo.id})">Edit</button>
+                            <button class="btn btn-small btn-save" onclick="savePhoto(${photo.id})" style="display: none;">Save</button>
+                            <button class="btn btn-small btn-cancel" onclick="cancelEdit(${photo.id})" style="display: none;">Cancel</button>
+                            <button class="btn btn-small btn-danger" onclick="deletePhoto(${photo.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+                photosGrid.appendChild(photoItem);
+            });
+        }
+
+        // Toggle edit mode
+        function toggleEdit(photoId) {
+            const editDiv = document.getElementById(`edit-${photoId}`);
+            const displayDiv = document.getElementById(`display-${photoId}`);
+            const editBtn = document.querySelector(`button[onclick="toggleEdit(${photoId})"]`);
+            const saveBtn = document.querySelector(`button[onclick="savePhoto(${photoId})"]`);
+            const cancelBtn = document.querySelector(`button[onclick="cancelEdit(${photoId})"]`);
+            
+            editDiv.style.display = 'flex';
+            displayDiv.style.display = 'none';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+        }
+        
+        // Cancel edit mode
+        function cancelEdit(photoId) {
+            const editDiv = document.getElementById(`edit-${photoId}`);
+            const displayDiv = document.getElementById(`display-${photoId}`);
+            const editBtn = document.querySelector(`button[onclick="toggleEdit(${photoId})"]`);
+            const saveBtn = document.querySelector(`button[onclick="savePhoto(${photoId})"]`);
+            const cancelBtn = document.querySelector(`button[onclick="cancelEdit(${photoId})"]`);
+            
+            editDiv.style.display = 'none';
+            displayDiv.style.display = 'block';
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+        
+        // Save photo changes
+        async function savePhoto(photoId) {
+            try {
+                const title = document.getElementById(`edit-title-${photoId}`).value;
+                const category = document.getElementById(`edit-category-${photoId}`).value;
+                const size = document.getElementById(`edit-size-${photoId}`).value;
+                const description = document.getElementById(`edit-description-${photoId}`).value;
+                
+                const { error } = await supabase
+                    .from('photos')
+                    .update({
+                        title: title || `Photo ${Date.now()}`,
+                        category: category,
+                        size: size,
+                        description: description || ''
+                    })
+                    .eq('id', photoId);
+                
+                if (error) {
+                    console.error('Update error:', error);
+                    showStatus('Error updating photo: ' + error.message, 'error');
+                } else {
+                    showStatus('Photo updated successfully!', 'success');
+                    loadPhotos(); // Reload to show changes
+                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Delete photo function
+        async function deletePhoto(id) {
+            if (confirm('Are you sure you want to delete this photo?')) {
+                const { error } = await supabase
+                    .from('photos')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) {
+                    showStatus('Error deleting photo: ' + error.message, 'error');
+                } else {
+                    showStatus('Photo deleted successfully!', 'success');
+                    loadPhotos();
+                }
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Drag and drop functionality
+        function initDragAndDrop() {
+            const fileUpload = document.querySelector('.file-upload');
+            const fileInput = document.getElementById('photoFile');
+            
+            fileUpload.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUpload.style.borderColor = '#fff';
+                fileUpload.style.background = '#111';
+            });
+            
+            fileUpload.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                fileUpload.style.borderColor = '#333';
+                fileUpload.style.background = 'transparent';
+            });
+            
+            fileUpload.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUpload.style.borderColor = '#333';
+                fileUpload.style.background = 'transparent';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    updateFileUploadText(files[0].name);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    updateFileUploadText(e.target.files[0].name);
+                }
+            });
+        }
+        
+        function updateFileUploadText(fileName) {
+            const text = document.querySelector('.file-upload-text');
+            text.textContent = fileName;
+            text.style.color = '#fff';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            initDragAndDrop();
+        });
+    </script>
+</body>
+</html>
