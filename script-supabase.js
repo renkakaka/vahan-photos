@@ -148,7 +148,9 @@ async function generatePortfolioItems() {
         portfolioGrid.appendChild(portfolioItem);
         
         // Add to observer if it exists and item hasn't been animated yet
-        if (window.portfolioObserver && !portfolioItem.classList.contains('animate-fade-in-up')) {
+        if (window.portfolioObserver && 
+            !portfolioItem.classList.contains('animate-fade-in-up') && 
+            !portfolioItem.classList.contains('ios-animated')) {
             window.portfolioObserver.observe(portfolioItem);
         }
     });
@@ -235,24 +237,40 @@ function initPortfolioAnimations() {
     // Only initialize once
     if (window.portfolioObserver) return;
     
+    // Detect iOS devices
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // More conservative settings for iOS
+    const observerOptions = isIOS ? {
+        threshold: 0.3,
+        rootMargin: '0px 0px -100px 0px'
+    } : {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
     window.portfolioObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !entry.target.classList.contains('animate-fade-in-up')) {
                 entry.target.classList.add('animate-fade-in-up');
                 entry.target.style.animationDelay = `${Array.from(entry.target.parentNode.children).indexOf(entry.target) * 0.1}s`;
+                
+                // For iOS, add a permanent class to prevent re-triggering
+                if (isIOS) {
+                    entry.target.classList.add('ios-animated');
+                }
+                
                 // Unobserve after animation is added to prevent re-triggering
                 window.portfolioObserver.unobserve(entry.target);
             }
         });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
+    }, observerOptions);
     
     const portfolioItems = document.querySelectorAll('.portfolio-item');
     portfolioItems.forEach(item => {
         // Only observe items that haven't been animated yet
-        if (!item.classList.contains('animate-fade-in-up')) {
+        if (!item.classList.contains('animate-fade-in-up') && !item.classList.contains('ios-animated')) {
             window.portfolioObserver.observe(item);
         }
     });
@@ -837,6 +855,51 @@ function initMobilePinchToClose() {
 }
 
 // ========================================
+// iOS SPECIFIC HANDLING
+// ========================================
+
+/**
+ * Initialize iOS-specific scroll handling
+ */
+function initIOSScrollHandling() {
+    // Detect iOS devices
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    if (!isIOS) return;
+    
+    let scrollTimeout;
+    let isScrolling = false;
+    
+    // Throttle scroll events on iOS
+    window.addEventListener('scroll', () => {
+        if (!isScrolling) {
+            isScrolling = true;
+            
+            // Add class to prevent re-animations during scroll
+            document.body.classList.add('ios-scrolling');
+            
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                isScrolling = false;
+                document.body.classList.remove('ios-scrolling');
+            }, 150);
+        }
+    }, { passive: true });
+    
+    // Prevent touch events from triggering animations
+    document.addEventListener('touchstart', () => {
+        document.body.classList.add('ios-touching');
+    }, { passive: true });
+    
+    document.addEventListener('touchend', () => {
+        setTimeout(() => {
+            document.body.classList.remove('ios-touching');
+        }, 100);
+    }, { passive: true });
+}
+
+// ========================================
 // INITIALIZATION
 // ========================================
 
@@ -902,6 +965,9 @@ async function init() {
             initPortfolioAnimations();
             window.portfolioAnimationsInitialized = true;
         }
+        
+        // Add iOS-specific scroll handling
+        initIOSScrollHandling();
         
         // Add loaded class for CSS animations
         document.body.classList.add('loaded');

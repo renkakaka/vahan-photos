@@ -1190,6 +1190,39 @@ body {
     animation: fadeIn 0.6s ease-out forwards;
 }
 
+/* iOS specific styles to prevent re-animation */
+.ios-animated {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Prevent re-triggering on iOS scroll */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+    .portfolio-item.animate-fade-in-up {
+        animation-fill-mode: forwards;
+        animation-iteration-count: 1;
+    }
+}
+
+/* iOS scroll and touch handling */
+.ios-scrolling .portfolio-item {
+    animation: none !important;
+    transition: none !important;
+}
+
+.ios-touching .portfolio-item {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Disable animations during iOS scroll */
+body.ios-scrolling .animate-fade-in-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
 /* ========================================
    UTILITY CLASSES
 ======================================== */
