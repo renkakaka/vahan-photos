@@ -659,31 +659,144 @@ function initContactForm() {
     const form = document.querySelector('.contact-form');
     if (!form) return;
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
         
-        // Simulate form submission
         const submitButton = form.querySelector('.submit-button');
         const originalText = submitButton.textContent;
         
+        // Show loading state
         submitButton.textContent = 'Sending...';
         submitButton.disabled = true;
+        submitButton.style.background = '#666';
         
-        setTimeout(() => {
-            submitButton.textContent = 'Message Sent!';
-            submitButton.style.background = '#4CAF50';
+        try {
+            // Send data to server
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
             
+            const result = await response.json();
+            
+            if (result.success) {
+                // Success state
+                submitButton.textContent = 'Message Sent! ✓';
+                submitButton.style.background = '#4CAF50';
+                
+                // Show success message
+                showNotification('Message sent successfully! We\'ll get back to you soon.', 'success');
+                
+                // Reset form after delay
+                setTimeout(() => {
+                    submitButton.textContent = originalText;
+                    submitButton.disabled = false;
+                    submitButton.style.background = '';
+                    form.reset();
+                }, 3000);
+                
+            } else {
+                throw new Error(result.message || 'Failed to send message');
+            }
+            
+        } catch (error) {
+            console.error('Error sending message:', error);
+            
+            // Error state
+            submitButton.textContent = 'Error - Try Again';
+            submitButton.style.background = '#f44336';
+            
+            showNotification('Failed to send message. Please try again.', 'error');
+            
+            // Reset button after delay
             setTimeout(() => {
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
                 submitButton.style.background = '';
-                form.reset();
-            }, 2000);
-        }, 1500);
+            }, 3000);
+        }
     });
+}
+
+/**
+ * Show notification message
+ */
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    // Style the notification
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        font-weight: 500;
+        max-width: 300px;
+        animation: slideInRight 0.3s ease-out;
+    `;
+    
+    // Add animation keyframes if not exists
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
 }
 
 // ========================================
