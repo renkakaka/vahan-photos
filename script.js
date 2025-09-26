@@ -674,8 +674,8 @@ function initContactForm() {
         submitButton.style.background = '#666';
         
         try {
-            // Send data to server
-            const response = await fetch('/api/send-email', {
+            // Send data to Netlify Function
+            const response = await fetch('/netlify/functions/send-email', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

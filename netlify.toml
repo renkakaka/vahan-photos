@@ -12,10 +12,16 @@
   # Node.js version
   NODE_VERSION = "18"
 
+# Functions directory
+[functions]
+  directory = "netlify/functions"
+
 # Environment variables (optional)
 # Add these in Netlify dashboard under Site settings > Environment variables
 # SUPABASE_URL = "https://fzqtdybnvctvgkqqyhkl.supabase.co"
 # SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+# EMAIL_USER = "your-email@gmail.com"
+# EMAIL_PASS = "your-app-password"
 
 # Redirect rules for SPA
 [[redirects]]
