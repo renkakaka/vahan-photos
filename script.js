@@ -362,24 +362,16 @@ function handleImageError(img) {
 }
 
 /**
- * Initialize portfolio animations
+ * Initialize portfolio animations - DISABLED
  */
 function initPortfolioAnimations() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-fade-in-up');
-                entry.target.style.animationDelay = `${Array.from(entry.target.parentNode.children).indexOf(entry.target) * 0.1}s`;
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
+    // Animation disabled - elements appear immediately
     const portfolioItems = document.querySelectorAll('.portfolio-item');
     portfolioItems.forEach(item => {
-        observer.observe(item);
+        // Remove any animation classes and make visible immediately
+        item.classList.remove('animate-fade-in-up');
+        item.style.opacity = '1';
+        item.style.transform = 'translateY(0)';
     });
 }
 
@@ -619,24 +611,17 @@ function initNavigation() {
 // ========================================
 
 /**
- * Initialize scroll animations
+ * Initialize scroll animations - DISABLED
  */
 function initScrollAnimations() {
+    // Animation disabled - elements appear immediately
     const animatedElements = document.querySelectorAll('.contact-info, .contact-form');
     
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-fade-in-up');
-            }
-        });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
     animatedElements.forEach(element => {
-        observer.observe(element);
+        // Remove any animation classes and make visible immediately
+        element.classList.remove('animate-fade-in-up');
+        element.style.opacity = '1';
+        element.style.transform = 'translateY(0)';
     });
 }
 
