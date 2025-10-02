@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #000; 
+            color: #fff; 
+        }
+        .test-section { 
+            background: #111; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            border: 1px solid #333; 
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+        button { 
+            background: #d4af37; 
+            color: #000; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #b8941f; }
+        input { 
+            background: #222; 
+            color: #fff; 
+            border: 1px solid #333; 
+            padding: 8px; 
+            border-radius: 4px; 
+            margin: 5px; 
+        }
+        .log { 
+            background: #000; 
+            padding: 10px; 
+            border-radius: 4px; 
+            font-family: monospace; 
+            font-size: 12px; 
+            max-height: 200px; 
+            overflow-y: auto; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Supabase Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Environment Variables</h2>
+        <div id="env-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Supabase Connection</h2>
+        <button onclick="testConnection()">Test Connection</button>
+        <div id="connection-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Authentication Test</h2>
+        <input type="email" id="test-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="test-password" placeholder="Password" value="testpassword123">
+        <br>
+        <button onclick="testSignup()">Test Signup</button>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testLogout()">Test Logout</button>
+        <div id="auth-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Database Tables</h2>
+        <button onclick="testPhotosTable()">Test Photos Table</button>
+        <button onclick="testVideosTable()">Test Videos Table</button>
+        <div id="table-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Storage Test</h2>
+        <button onclick="testStorage()">Test Storage Access</button>
+        <div id="storage-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. Logs</h2>
+        <div id="logs" class="log"></div>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration
+        const supabaseUrl = window.SUPABASE_URL || 'https://fzqtdybnvctvgkqqyhkl.supabase.co';
+        const supabaseKey = window.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cXRkeWJudmN0dmdrcXF5aGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4MDE2MjMsImV4cCI6MjA3NDM3NzYyM30.F5JH4i8w8I8TeHrXgfqLr0swYCgjHA6VvL53n6PrQR0';
+        
+        let supabase;
+        
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            logs.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+        
+        function setStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        // Test 1: Environment Variables
+        function checkEnvironmentVariables() {
+            const envStatus = document.getElementById('env-status');
+            let status = '<div class="info">Checking environment variables...</div>';
+            
+            if (window.SUPABASE_URL) {
+                status += '<div class="success">✅ SUPABASE_URL: ' + window.SUPABASE_URL + '</div>';
+            } else {
+                status += '<div class="error">❌ SUPABASE_URL: Not found (using fallback)</div>';
+            }
+            
+            if (window.SUPABASE_KEY) {
+                status += '<div class="success">✅ SUPABASE_KEY: ' + window.SUPABASE_KEY.substring(0, 20) + '...</div>';
+            } else {
+                status += '<div class="error">❌ SUPABASE_KEY: Not found (using fallback)</div>';
+            }
+            
+            envStatus.innerHTML = status;
+            log('Environment variables checked');
+        }
+        
+        // Test 2: Supabase Connection
+        async function testConnection() {
+            try {
+                setStatus('connection-status', 'Testing connection...', 'info');
+                log('Testing Supabase connection...');
+                
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                
+                // Test basic connection
+                const { data, error } = await supabase.from('photos').select('count').limit(1);
+                
+                if (error) {
+                    setStatus('connection-status', '❌ Connection failed: ' + error.message, 'error');
+                    log('Connection failed: ' + error.message, 'error');
+                } else {
+                    setStatus('connection-status', '✅ Connection successful!', 'success');
+                    log('Connection successful!', 'success');
+                }
+            } catch (err) {
+                setStatus('connection-status', '❌ Connection error: ' + err.message, 'error');
+                log('Connection error: ' + err.message, 'error');
+            }
+        }
+        
+        // Test 3: Authentication
+        async function testSignup() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            try {
+                setStatus('auth-status', 'Testing signup...', 'info');
+                log('Testing signup...');
+                
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    setStatus('auth-status', '❌ Signup failed: ' + error.message, 'error');
+                    log('Signup failed: ' + error.message, 'error');
+                } else {
+                    setStatus('auth-status', '✅ Signup successful! Check your email.', 'success');
+                    log('Signup successful!', 'success');
+                }
+            } catch (err) {
+                setStatus('auth-status', '❌ Signup error: ' + err.message, 'error');
+                log('Signup error: ' + err.message, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            
+            try {
+                setStatus('auth-status', 'Testing login...', 'info');
+                log('Testing login...');
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    setStatus('auth-status', '❌ Login failed: ' + error.message, 'error');
+                    log('Login failed: ' + error.message, 'error');
+                } else {
+                    setStatus('auth-status', '✅ Login successful! User: ' + data.user.email, 'success');
+                    log('Login successful!', 'success');
+                }
+            } catch (err) {
+                setStatus('auth-status', '❌ Login error: ' + err.message, 'error');
+                log('Login error: ' + err.message, 'error');
+            }
+        }
+        
+        async function testLogout() {
+            try {
+                setStatus('auth-status', 'Testing logout...', 'info');
+                log('Testing logout...');
+                
+                const { error } = await supabase.auth.signOut();
+                
+                if (error) {
+                    setStatus('auth-status', '❌ Logout failed: ' + error.message, 'error');
+                    log('Logout failed: ' + error.message, 'error');
+                } else {
+                    setStatus('auth-status', '✅ Logout successful!', 'success');
+                    log('Logout successful!', 'success');
+                }
+            } catch (err) {
+                setStatus('auth-status', '❌ Logout error: ' + err.message, 'error');
+                log('Logout error: ' + err.message, 'error');
+            }
+        }
+        
+        // Test 4: Database Tables
+        async function testPhotosTable() {
+            try {
+                setStatus('table-status', 'Testing photos table...', 'info');
+                log('Testing photos table...');
+                
+                const { data, error } = await supabase.from('photos').select('*').limit(5);
+                
+                if (error) {
+                    setStatus('table-status', '❌ Photos table error: ' + error.message, 'error');
+                    log('Photos table error: ' + error.message, 'error');
+                } else {
+                    setStatus('table-status', '✅ Photos table OK! Found ' + data.length + ' photos', 'success');
+                    log('Photos table OK! Found ' + data.length + ' photos', 'success');
+                }
+            } catch (err) {
+                setStatus('table-status', '❌ Photos table error: ' + err.message, 'error');
+                log('Photos table error: ' + err.message, 'error');
+            }
+        }
+        
+        async function testVideosTable() {
+            try {
+                setStatus('table-status', 'Testing videos table...', 'info');
+                log('Testing videos table...');
+                
+                const { data, error } = await supabase.from('videos').select('*').limit(5);
+                
+                if (error) {
+                    setStatus('table-status', '❌ Videos table error: ' + error.message, 'error');
+                    log('Videos table error: ' + error.message, 'error');
+                } else {
+                    setStatus('table-status', '✅ Videos table OK! Found ' + data.length + ' videos', 'success');
+                    log('Videos table OK! Found ' + data.length + ' videos', 'success');
+                }
+            } catch (err) {
+                setStatus('table-status', '❌ Videos table error: ' + err.message, 'error');
+                log('Videos table error: ' + err.message, 'error');
+            }
+        }
+        
+        // Test 5: Storage
+        async function testStorage() {
+            try {
+                setStatus('storage-status', 'Testing storage access...', 'info');
+                log('Testing storage access...');
+                
+                const { data, error } = await supabase.storage.from('photos').list('', { limit: 1 });
+                
+                if (error) {
+                    setStatus('storage-status', '❌ Storage error: ' + error.message, 'error');
+                    log('Storage error: ' + error.message, 'error');
+                } else {
+                    setStatus('storage-status', '✅ Storage access OK!', 'success');
+                    log('Storage access OK!', 'success');
+                }
+            } catch (err) {
+                setStatus('storage-status', '❌ Storage error: ' + err.message, 'error');
+                log('Storage error: ' + err.message, 'error');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkEnvironmentVariables();
+            log('Supabase test page loaded');
+        });
+    </script>
+</body>
+</html>

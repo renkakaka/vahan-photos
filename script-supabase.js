@@ -519,18 +519,23 @@ function initNavigation() {
         console.warn('Navigation elements not found:', { navToggle, navMenu });
     }
     
-    // Smooth scroll for navigation links
+    // Smooth scroll for navigation links (only for internal links)
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             const target = link.getAttribute('href');
-            smoothScrollTo(target);
             
-            // Close mobile menu if open
-            if (navMenu && navMenu.classList.contains('active')) {
-                navMenu.classList.remove('active');
-                navToggle.classList.remove('active');
+            // Only prevent default for internal anchor links
+            if (target && target.startsWith('#')) {
+                e.preventDefault();
+                smoothScrollTo(target);
+                
+                // Close mobile menu if open
+                if (navMenu && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                }
             }
+            // For external links (like video.html), let them work normally
         });
     });
     

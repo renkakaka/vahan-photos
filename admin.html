@@ -374,6 +374,145 @@
             opacity: 0.5;
         }
         
+        /* Tab Styles */
+        .section-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #666;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-btn.active {
+            color: #fff;
+            border-bottom-color: #d4af37;
+        }
+        
+        .tab-btn:hover {
+            color: #fff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .video-item {
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #222;
+            transition: all 0.3s ease;
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+        
+        .video-item:hover {
+            transform: translateY(-4px);
+            border-color: #fff;
+        }
+        
+        .video-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: #1a1a1a;
+        }
+        
+        .video-info {
+            padding: 12px;
+        }
+        
+        .video-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+        
+        .video-category {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .video-duration {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .video-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 6px;
+        }
+        
+        .btn-video-edit {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-video-save {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-video-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .video-edit {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .video-edit input,
+        .video-edit select,
+        .video-edit textarea {
+            padding: 6px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        .video-edit textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -422,41 +561,79 @@
             <div class="main-content">
                 <!-- Upload Section -->
                 <div class="upload-section">
-                    <div class="form-group">
-                        <input type="text" id="photoTitle" placeholder="Title (optional)">
+                    <div class="section-tabs">
+                        <button class="tab-btn active" onclick="switchTab('photos')">Photos</button>
+                        <button class="tab-btn" onclick="switchTab('videos')">Videos</button>
                     </div>
-                    <div class="form-group">
-                        <select id="photoCategory">
-                            <option value="Wedding">Wedding</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="photoDescription" placeholder="Description (optional)"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <select id="photoSize">
-                            <option value="large">Large</option>
-                            <option value="medium">Medium</option>
-                        </select>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="isCarousel" onchange="toggleCarousel()">
-                        <label for="isCarousel">Carousel</label>
-                    </div>
-                    <div id="carouselSection" style="display: none;">
+                    
+                    <!-- Photos Tab -->
+                    <div id="photosTab" class="tab-content active">
                         <div class="form-group">
-                            <input type="file" id="carouselFiles" multiple accept="image/*" style="display: none;">
-                            <div class="file-upload-area" onclick="document.getElementById('carouselFiles').click()">
-                                <div class="file-upload-text">Select multiple images for carousel</div>
-                            </div>
-                            <div id="carouselPreview" class="carousel-preview"></div>
+                            <input type="text" id="photoTitle" placeholder="Title (optional)">
                         </div>
+                        <div class="form-group">
+                            <select id="photoCategory">
+                                <option value="Wedding">Wedding</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="photoDescription" placeholder="Description (optional)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <select id="photoSize">
+                                <option value="large">Large</option>
+                                <option value="medium">Medium</option>
+                            </select>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="isCarousel" onchange="toggleCarousel()">
+                            <label for="isCarousel">Carousel</label>
+                        </div>
+                        <div id="carouselSection" style="display: none;">
+                            <div class="form-group">
+                                <input type="file" id="carouselFiles" multiple accept="image/*" style="display: none;">
+                                <div class="file-upload-area" onclick="document.getElementById('carouselFiles').click()">
+                                    <div class="file-upload-text">Select multiple images for carousel</div>
+                                </div>
+                                <div id="carouselPreview" class="carousel-preview"></div>
+                            </div>
+                        </div>
+                        <div class="file-upload">
+                            <input type="file" id="photoFile" accept="image/*">
+                            <div class="file-upload-text">Drop image here or click to browse</div>
+                        </div>
+                        <button class="btn" onclick="uploadPhoto()">Upload Photo</button>
                     </div>
-                    <div class="file-upload">
-                        <input type="file" id="photoFile" accept="image/*">
-                        <div class="file-upload-text">Drop image here or click to browse</div>
+                    
+                    <!-- Videos Tab -->
+                    <div id="videosTab" class="tab-content">
+                        <div class="form-group">
+                            <input type="text" id="videoTitle" placeholder="Video Title (required)">
+                        </div>
+                        <div class="form-group">
+                            <select id="videoCategory">
+                                <option value="Wedding">Wedding</option>
+                                <option value="Engagement">Engagement</option>
+                                <option value="Portrait">Portrait</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="videoDescription" placeholder="Video Description (optional)"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="videoDuration" placeholder="Duration in seconds (optional)" min="1">
+                        </div>
+                        <div class="file-upload">
+                            <input type="file" id="videoFile" accept="video/*">
+                            <div class="file-upload-text">Drop video here or click to browse</div>
+                        </div>
+                        <div class="file-upload">
+                            <input type="file" id="videoThumbnail" accept="image/*">
+                            <div class="file-upload-text">Drop thumbnail here or click to browse (optional)</div>
+                        </div>
+                        <button class="btn" onclick="uploadVideo()">Upload Video</button>
                     </div>
-                    <button class="btn" onclick="uploadPhoto()">Upload</button>
+                    
                     <button class="btn btn-danger" onclick="logout()">Logout</button>
                 </div>
 
@@ -478,8 +655,8 @@
 
     <script>
         // Supabase configuration
-        const supabaseUrl = 'https://fzqtdybnvctvgkqqyhkl.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cXRkeWJudmN0dmdrcXF5aGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4MDE2MjMsImV4cCI6MjA3NDM3NzYyM30.F5JH4i8w8I8TeHrXgfqLr0swYCgjHA6VvL53n6PrQR0';
+        const supabaseUrl = window.SUPABASE_URL || 'https://fzqtdybnvctvgkqqyhkl.supabase.co';
+        const supabaseKey = window.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cXRkeWJudmN0dmdrcXF5aGtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4MDE2MjMsImV4cCI6MjA3NDM3NzYyM30.F5JH4i8w8I8TeHrXgfqLr0swYCgjHA6VvL53n6PrQR0';
         
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -907,6 +1084,309 @@
             const text = document.querySelector('.file-upload-text');
             text.textContent = fileName;
             text.style.color = '#fff';
+        }
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Load appropriate content
+            if (tabName === 'photos') {
+                loadPhotos();
+            } else if (tabName === 'videos') {
+                loadVideos();
+            }
+        }
+        
+        // Upload video function
+        async function uploadVideo() {
+            const title = document.getElementById('videoTitle').value;
+            const category = document.getElementById('videoCategory').value;
+            const description = document.getElementById('videoDescription').value;
+            const duration = document.getElementById('videoDuration').value;
+            const videoFile = document.getElementById('videoFile').files[0];
+            const thumbnailFile = document.getElementById('videoThumbnail').files[0];
+            
+            if (!title || !videoFile) {
+                showStatus('Please provide video title and select a video file!', 'error');
+                return;
+            }
+            
+            // Check file size (max 100MB for videos)
+            if (videoFile.size > 100 * 1024 * 1024) {
+                showStatus('Video file too large! Maximum size is 100MB', 'error');
+                return;
+            }
+            
+            // Check file type
+            if (!videoFile.type.startsWith('video/')) {
+                showStatus('Please select a video file!', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Uploading video...', 'info');
+                
+                // Create unique filename for video
+                const videoExt = videoFile.name.split('.').pop();
+                const videoFileName = `video_${Date.now()}-${Math.random().toString(36).substring(2)}.${videoExt}`;
+                
+                console.log('Uploading video:', videoFileName, 'Size:', videoFile.size, 'Type:', videoFile.type);
+                
+                // Upload video to Storage
+                const { data: videoUploadData, error: videoUploadError } = await supabase.storage
+                    .from('videos')
+                    .upload(videoFileName, videoFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (videoUploadError) {
+                    console.error('Video upload error:', videoUploadError);
+                    showStatus('Video upload error: ' + videoUploadError.message, 'error');
+                    return;
+                }
+                
+                console.log('Video upload successful:', videoUploadData);
+                
+                // Get public URL for video
+                const { data: videoUrlData } = supabase.storage
+                    .from('videos')
+                    .getPublicUrl(videoFileName);
+                
+                console.log('Video public URL:', videoUrlData.publicUrl);
+                
+                // Prepare video data
+                const videoData = {
+                    title: title,
+                    category: category,
+                    description: description || '',
+                    video_url: videoUrlData.publicUrl,
+                    duration: duration ? parseInt(duration) : null
+                };
+                
+                // Upload thumbnail if provided
+                if (thumbnailFile) {
+                    const thumbnailExt = thumbnailFile.name.split('.').pop();
+                    const thumbnailFileName = `thumb_${Date.now()}-${Math.random().toString(36).substring(2)}.${thumbnailExt}`;
+                    
+                    const { data: thumbUploadData, error: thumbUploadError } = await supabase.storage
+                        .from('videos')
+                        .upload(thumbnailFileName, thumbnailFile);
+                    
+                    if (thumbUploadError) {
+                        console.error('Thumbnail upload error:', thumbUploadError);
+                        showStatus('Video uploaded but thumbnail failed: ' + thumbUploadError.message, 'error');
+                    } else {
+                        const { data: thumbUrlData } = supabase.storage
+                            .from('videos')
+                            .getPublicUrl(thumbnailFileName);
+                        videoData.thumbnail_url = thumbUrlData.publicUrl;
+                    }
+                }
+                
+                console.log('Inserting video data:', videoData);
+                
+                // Insert into database
+                const { data, error } = await supabase
+                    .from('videos')
+                    .insert([videoData]);
+                
+                if (error) {
+                    console.error('Database error:', error);
+                    showStatus('Database error: ' + error.message, 'error');
+                } else {
+                    console.log('Video inserted successfully:', data);
+                    showStatus('Video uploaded successfully!', 'success');
+                    loadVideos();
+                    // Clear form
+                    document.getElementById('videoTitle').value = '';
+                    document.getElementById('videoDescription').value = '';
+                    document.getElementById('videoDuration').value = '';
+                    document.getElementById('videoFile').value = '';
+                    document.getElementById('videoThumbnail').value = '';
+                    // Reset file upload text
+                    document.querySelectorAll('.file-upload-text').forEach(text => {
+                        text.textContent = text.textContent.includes('thumbnail') ? 
+                            'Drop thumbnail here or click to browse (optional)' : 
+                            'Drop video here or click to browse';
+                        text.style.color = '#666';
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        // Load videos function
+        async function loadVideos() {
+            const { data: videos, error } = await supabase
+                .from('videos')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) {
+                showStatus('Error loading videos: ' + error.message, 'error');
+                return;
+            }
+            
+            // Create videos grid if it doesn't exist
+            let videosGrid = document.getElementById('videosGrid');
+            if (!videosGrid) {
+                videosGrid = document.createElement('div');
+                videosGrid.id = 'videosGrid';
+                videosGrid.className = 'video-grid';
+                
+                // Insert after photos grid
+                const photosGrid = document.getElementById('photosGrid');
+                photosGrid.parentNode.insertBefore(videosGrid, photosGrid.nextSibling);
+            }
+            
+            if (videos.length === 0) {
+                videosGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎬</div>
+                        <div>No videos yet</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            videosGrid.innerHTML = '';
+            
+            videos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail_url || 'vahan-preview.jpg'}" alt="${video.title}" class="video-thumbnail">
+                    <div class="video-duration">${formatDuration(video.duration)}</div>
+                    <div class="video-info">
+                        <div class="video-edit" id="video-edit-${video.id}" style="display: none;">
+                            <input type="text" id="edit-video-title-${video.id}" value="${video.title}" placeholder="Title">
+                            <select id="edit-video-category-${video.id}">
+                                <option value="Wedding" ${video.category === 'Wedding' ? 'selected' : ''}>Wedding</option>
+                                <option value="Engagement" ${video.category === 'Engagement' ? 'selected' : ''}>Engagement</option>
+                                <option value="Portrait" ${video.category === 'Portrait' ? 'selected' : ''}>Portrait</option>
+                            </select>
+                            <input type="number" id="edit-video-duration-${video.id}" value="${video.duration || ''}" placeholder="Duration (seconds)">
+                            <textarea id="edit-video-description-${video.id}" placeholder="Description">${video.description || ''}</textarea>
+                        </div>
+                        <div class="video-display" id="video-display-${video.id}">
+                            <div class="video-title">${video.title}</div>
+                            <div class="video-category">${video.category}</div>
+                        </div>
+                        <div class="video-actions">
+                            <button class="btn btn-small btn-video-edit" onclick="toggleVideoEdit(${video.id})">Edit</button>
+                            <button class="btn btn-small btn-video-save" onclick="saveVideo(${video.id})" style="display: none;">Save</button>
+                            <button class="btn btn-small btn-video-cancel" onclick="cancelVideoEdit(${video.id})" style="display: none;">Cancel</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteVideo(${video.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+                videosGrid.appendChild(videoItem);
+            });
+        }
+        
+        // Toggle video edit mode
+        function toggleVideoEdit(videoId) {
+            const editDiv = document.getElementById(`video-edit-${videoId}`);
+            const displayDiv = document.getElementById(`video-display-${videoId}`);
+            const editBtn = document.querySelector(`button[onclick="toggleVideoEdit(${videoId})"]`);
+            const saveBtn = document.querySelector(`button[onclick="saveVideo(${videoId})"]`);
+            const cancelBtn = document.querySelector(`button[onclick="cancelVideoEdit(${videoId})"]`);
+            
+            editDiv.style.display = 'flex';
+            displayDiv.style.display = 'none';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+        }
+        
+        // Cancel video edit mode
+        function cancelVideoEdit(videoId) {
+            const editDiv = document.getElementById(`video-edit-${videoId}`);
+            const displayDiv = document.getElementById(`video-display-${videoId}`);
+            const editBtn = document.querySelector(`button[onclick="toggleVideoEdit(${videoId})"]`);
+            const saveBtn = document.querySelector(`button[onclick="saveVideo(${videoId})"]`);
+            const cancelBtn = document.querySelector(`button[onclick="cancelVideoEdit(${videoId})"]`);
+            
+            editDiv.style.display = 'none';
+            displayDiv.style.display = 'block';
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+        
+        // Save video changes
+        async function saveVideo(videoId) {
+            try {
+                const title = document.getElementById(`edit-video-title-${videoId}`).value;
+                const category = document.getElementById(`edit-video-category-${videoId}`).value;
+                const duration = document.getElementById(`edit-video-duration-${videoId}`).value;
+                const description = document.getElementById(`edit-video-description-${videoId}`).value;
+                
+                const { error } = await supabase
+                    .from('videos')
+                    .update({
+                        title: title || `Video ${Date.now()}`,
+                        category: category,
+                        duration: duration ? parseInt(duration) : null,
+                        description: description || ''
+                    })
+                    .eq('id', videoId);
+                
+                if (error) {
+                    console.error('Update error:', error);
+                    showStatus('Error updating video: ' + error.message, 'error');
+                } else {
+                    showStatus('Video updated successfully!', 'success');
+                    loadVideos(); // Reload to show changes
+                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        // Delete video function
+        async function deleteVideo(id) {
+            if (confirm('Are you sure you want to delete this video?')) {
+                const { error } = await supabase
+                    .from('videos')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) {
+                    showStatus('Error deleting video: ' + error.message, 'error');
+                } else {
+                    showStatus('Video deleted successfully!', 'success');
+                    loadVideos();
+                }
+            }
+        }
+        
+        // Format duration helper
+        function formatDuration(seconds) {
+            if (!seconds) return '0:00';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
         
         // Initialize
