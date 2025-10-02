@@ -12,6 +12,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoModalClose = document.querySelector('.video-modal-close');
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
+    // Custom player controls
+    const btnPlayPause = document.getElementById('btnPlayPause');
+    const btnMute = document.getElementById('btnMute');
+    const btnSpeed = document.getElementById('btnSpeed');
+    const btnPiP = document.getElementById('btnPiP');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const seekBar = document.getElementById('seekBar');
+    const volumeBar = document.getElementById('volumeBar');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
     
     // Initialize the page
     init();
@@ -194,6 +204,13 @@ document.addEventListener('DOMContentLoaded', function() {
         videoPlayer.play().catch(error => {
             console.error('Error playing video:', error);
         });
+
+        // Update duration when metadata is loaded
+        videoPlayer.addEventListener('loadedmetadata', function handleMeta() {
+            durationEl.textContent = formatDuration(videoPlayer.duration);
+            seekBar.max = Math.floor(videoPlayer.duration || 0);
+            videoPlayer.removeEventListener('loadedmetadata', handleMeta);
+        });
     }
     
     function closeVideoModal() {
@@ -205,6 +222,135 @@ document.addEventListener('DOMContentLoaded', function() {
         videoModal.classList.remove('active');
         document.body.style.overflow = '';
     }
+
+    // ----- Custom Controls Logic -----
+    function togglePlayPause() {
+        if (videoPlayer.paused) {
+            videoPlayer.play();
+        } else {
+            videoPlayer.pause();
+        }
+    }
+    
+    function updatePlayPauseButton() {
+        if (videoPlayer.paused) {
+            btnPlayPause.textContent = '▶';
+        } else {
+            btnPlayPause.textContent = '❚❚';
+        }
+    }
+
+    function toggleMute() {
+        videoPlayer.muted = !videoPlayer.muted;
+        btnMute.textContent = videoPlayer.muted ? '🔇' : '🔊';
+    }
+
+    function changeSpeed() {
+        const speeds = [1, 1.25, 1.5, 1.75, 2];
+        const idx = speeds.indexOf(videoPlayer.playbackRate);
+        const next = speeds[(idx + 1) % speeds.length];
+        videoPlayer.playbackRate = next;
+        btnSpeed.textContent = next + 'x';
+    }
+
+    async function togglePiP() {
+        try {
+            if (document.pictureInPictureElement) {
+                await document.exitPictureInPicture();
+            } else if (document.pictureInPictureEnabled && !videoPlayer.disablePictureInPicture) {
+                await videoPlayer.requestPictureInPicture();
+            }
+        } catch (e) {
+            console.warn('PiP not available', e);
+        }
+    }
+
+    function toggleFullscreen() {
+        const container = document.querySelector('.video-player-container');
+        if (!document.fullscreenElement) {
+            container.requestFullscreen?.();
+        } else {
+            document.exitFullscreen?.();
+        }
+    }
+
+    function updateSeekBar() {
+        if (!isNaN(videoPlayer.duration)) {
+            seekBar.value = Math.floor(videoPlayer.currentTime);
+            currentTimeEl.textContent = formatDuration(videoPlayer.currentTime);
+        }
+    }
+
+    function seekTo(e) {
+        const value = Number(e.target.value);
+        if (!isNaN(value)) {
+            videoPlayer.currentTime = value;
+        }
+    }
+
+    function setVolume(e) {
+        const value = Number(e.target.value);
+        if (!isNaN(value)) {
+            videoPlayer.volume = value;
+            videoPlayer.muted = value === 0;
+            btnMute.textContent = videoPlayer.muted ? '🔇' : '🔊';
+        }
+    }
+
+    // Keyboard shortcuts inside modal
+    document.addEventListener('keydown', function(e) {
+        if (!videoModal.classList.contains('active')) return;
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        switch (e.key) {
+            case ' ': // Space
+            case 'k':
+                e.preventDefault();
+                togglePlayPause();
+                break;
+            case 'm':
+                toggleMute();
+                break;
+            case 'f':
+                toggleFullscreen();
+                break;
+            case 'p':
+                togglePiP();
+                break;
+            case 'ArrowRight':
+                videoPlayer.currentTime = Math.min(videoPlayer.currentTime + 5, videoPlayer.duration || videoPlayer.currentTime);
+                break;
+            case 'ArrowLeft':
+                videoPlayer.currentTime = Math.max(videoPlayer.currentTime - 5, 0);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                videoPlayer.volume = Math.min(1, videoPlayer.volume + 0.05);
+                volumeBar.value = videoPlayer.volume.toFixed(2);
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                videoPlayer.volume = Math.max(0, videoPlayer.volume - 0.05);
+                volumeBar.value = videoPlayer.volume.toFixed(2);
+                break;
+        }
+    });
+
+    // Wire up events if controls exist
+    if (btnPlayPause) {
+        btnPlayPause.addEventListener('click', togglePlayPause);
+        videoPlayer.addEventListener('play', updatePlayPauseButton);
+        videoPlayer.addEventListener('pause', updatePlayPauseButton);
+    }
+    if (btnMute) btnMute.addEventListener('click', toggleMute);
+    if (btnSpeed) btnSpeed.addEventListener('click', changeSpeed);
+    if (btnPiP) btnPiP.addEventListener('click', togglePiP);
+    if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullscreen);
+    if (seekBar) {
+        videoPlayer.addEventListener('timeupdate', updateSeekBar);
+        seekBar.addEventListener('input', seekTo);
+    }
+    if (volumeBar) volumeBar.addEventListener('input', setVolume);
     
     function formatDuration(seconds) {
         if (!seconds) return '0:00';
