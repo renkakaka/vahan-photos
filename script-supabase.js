@@ -697,13 +697,18 @@ function debounce(func, wait) {
  * Smooth scroll to element
  */
 function smoothScrollTo(target) {
-    const element = document.querySelector(target);
-    if (element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
+    if (!target || typeof target !== 'string') return;
+    // Only handle in-page anchors like '#section'. Ignore paths like '/video'
+    if (!target.startsWith('#')) return;
+    // querySelector requires a valid selector. Ensure we look up by id safely
+    const id = target.slice(1);
+    if (!id) return;
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
 }
 
 // ========================================
