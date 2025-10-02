@@ -48,7 +48,7 @@
                     <a href="video.html" class="nav-link active">Video</a>
                     <a href="index.html#contact" class="nav-link">Contact</a>
                 </div>
-                <button class="nav-toggle" aria-label="Toggle navigation menu">
+                <button class="nav-toggle" aria-label="Toggle navigation menu" aria-controls="navMenu" aria-expanded="false">
                     <span class="hamburger"></span>
                     <span class="hamburger"></span>
                     <span class="hamburger"></span>
@@ -107,7 +107,7 @@
             <div class="video-modal-content">
                 <button class="video-modal-close" aria-label="Close video modal">&times;</button>
                 <div class="video-player-container">
-                    <video class="video-player" id="videoPlayer" controls preload="metadata">
+                    <video class="video-player" id="videoPlayer" preload="metadata" playsinline webkit-playsinline>
                         <source src="" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>

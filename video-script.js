@@ -77,9 +77,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Mobile navigation toggle
         if (navToggle) {
-            navToggle.addEventListener('click', function() {
-                navMenu.classList.toggle('active');
+            const menu = document.querySelector('.nav-menu');
+            navToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                menu.classList.toggle('active');
                 navToggle.classList.toggle('active');
+                const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+                navToggle.setAttribute('aria-expanded', (!expanded).toString());
+            }, { passive: false });
+            // Close when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!menu.contains(e.target) && !navToggle.contains(e.target)) {
+                    menu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                }
             });
         }
         
@@ -87,8 +100,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const navLinks = document.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
             link.addEventListener('click', function() {
-                navMenu.classList.remove('active');
-                navToggle.classList.remove('active');
+                if (navMenu && navToggle) {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                    navToggle.setAttribute('aria-expanded', 'false');
+                }
             });
         });
         
@@ -205,10 +221,15 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error playing video:', error);
         });
 
-        // Update duration when metadata is loaded
+        // Update duration when metadata is loaded; correct sizing for mobile
         videoPlayer.addEventListener('loadedmetadata', function handleMeta() {
             durationEl.textContent = formatDuration(videoPlayer.duration);
             seekBar.max = Math.floor(videoPlayer.duration || 0);
+            // Adjust sizing on mobile to fit viewport
+            const container = document.querySelector('.video-player-container');
+            if (container) {
+                container.style.height = '';
+            }
             videoPlayer.removeEventListener('loadedmetadata', handleMeta);
         });
     }
