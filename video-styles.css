@@ -259,17 +259,18 @@
 
 .video-modal-close {
     position: absolute;
-    top: -50px;
-    right: 0;
+    top: 8px;
+    right: 8px;
     background: none;
     border: none;
     color: #ffffff;
     font-size: 2rem;
     cursor: pointer;
     z-index: 1;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 50%;
     transition: all 0.3s ease;
+    background: rgba(0,0,0,0.4);
 }
 
 .video-modal-close:hover {
@@ -495,10 +496,7 @@ video[controls] { controls: none; }
         padding: 1rem;
     }
     
-    .video-modal-close {
-        top: -40px;
-        font-size: 1.5rem;
-    }
+    .video-modal-close { top: 8px; right: 8px; font-size: 1.75rem; }
 }
 
 @media (max-width: 480px) {

@@ -60,6 +60,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function initEventListeners() {
         // Video modal close
         videoModalClose.addEventListener('click', closeVideoModal);
+        // Also close on swipe-down gesture on mobile
+        videoModal.addEventListener('touchstart', function(e){ this._sy = e.touches[0].clientY; }, { passive: true });
+        videoModal.addEventListener('touchend', function(e){
+            const sy = this._sy || 0;
+            const dy = (e.changedTouches[0].clientY - sy);
+            if (dy > 100) closeVideoModal();
+        }, { passive: true });
         
         // Close modal on background click
         videoModal.addEventListener('click', function(e) {
