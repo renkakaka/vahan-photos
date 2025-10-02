@@ -97,15 +97,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 .order('created_at', { ascending: false });
             
             if (error) {
-                console.error('Error loading videos:', error);
-                throw error;
+                // Handle missing table gracefully
+                if (error.code === 'PGRST205' || (error.message && error.message.includes("Could not find the table 'public.videos'"))) {
+                    console.warn('Videos table not found. Displaying empty state.');
+                    displayEmptyState();
+                    return;
+                }
+                console.warn('Non-fatal error loading videos:', error);
+                showError('Failed to load videos. Please try again later.');
+                return;
             }
             
             displayVideos(videos || []);
             
         } catch (error) {
-            console.error('Error loading videos:', error);
-            displayEmptyState();
+            showError('Failed to load videos. Please try again later.');
         }
     }
     
