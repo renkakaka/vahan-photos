@@ -202,7 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function openVideoModal(video) {
-        // Set video source
+        // Set video source and ensure native controls are hidden
+        videoPlayer.removeAttribute('controls');
+        videoPlayer.controls = false;
         videoPlayer.src = video.video_url;
         
         // Set video info

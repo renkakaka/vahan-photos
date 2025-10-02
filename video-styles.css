@@ -295,6 +295,12 @@
     border-radius: 12px;
 }
 
+/* Force-hide native controls overlay in some browsers */
+video::-webkit-media-controls { display: none !important; }
+video::-moz-media-controls { display: none !important; }
+video::-ms-media-controls { display: none !important; }
+video[controls] { controls: none; }
+
 /* Custom Player Controls */
 .player-controls {
     position: absolute;
