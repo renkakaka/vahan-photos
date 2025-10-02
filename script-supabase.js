@@ -496,15 +496,17 @@ function initNavigation() {
         navToggle.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Toggle clicked');
-            
             const isActive = navMenu.classList.contains('active');
             if (isActive) {
                 navMenu.classList.remove('active');
                 navToggle.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
             } else {
                 navMenu.classList.add('active');
                 navToggle.classList.add('active');
+                navToggle.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
             }
         });
         
@@ -513,6 +515,8 @@ function initNavigation() {
             if (!navMenu.contains(e.target) && !navToggle.contains(e.target)) {
                 navMenu.classList.remove('active');
                 navToggle.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
             }
         });
     } else {
